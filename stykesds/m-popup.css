@@ -1,0 +1,150 @@
+/* overlay at start
+.mfp-fade.mfp-bg {
+    opacity: 0;
+    -webkit-transition: all 0.15s ease-out;
+    -moz-transition: all 0.15s ease-out;
+    transition: all 0.15s ease-out;
+}*/
+/* overlay animate in
+.mfp-fade.mfp-bg.mfp-ready {
+    opacity: 0.6;
+}*/
+/* overlay animate out
+.mfp-fade.mfp-bg.mfp-removing {
+    opacity: 0;
+}*/
+/* content at start
+.mfp-fade.mfp-wrap .mfp-content {
+    opacity: 0;
+    transform: scale(0.5);
+    -webkit-transition: all 0.25s ease-out;
+    -moz-transition: all 0.25s ease-out;
+    transition: all 0.25s ease-out;
+}*/
+/* content animate it
+.mfp-fade.mfp-wrap.mfp-ready .mfp-content {
+    opacity: 1;
+    transform: scale(1);
+}*/
+/* content animate out
+.mfp-fade.mfp-wrap.mfp-removing .mfp-content {
+    opacity: 0;
+    transform: scale(0.5);
+}*/
+/*
+.mfp-close-btn-in .mfp-close{
+    color: #fff;
+    text-shadow: 0 0 2px #000;
+    right: 0;
+    top: 0;
+    background: #000;
+    width: 30px;
+    height: 30px;
+    line-height: 5px;
+    font-size: 40px;
+}
+.mfp-close-btn-in .mfp-close{
+
+}
+.mfp-inline-holder .mfp-content, .mfp-ajax-holder .mfp-content{
+    width: auto;
+}
+.mfp-wrap,.mfp-bg{
+    position:fixed !important;
+    top:0 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+}
+.mfp-iframe-holder .mfp-content{
+    height:80%;
+    margin:10% auto;
+}
+.mfp-iframe-holder .mfp-content{
+
+}
+.mfp-iframe-holder .mfp-iframe-scaler iframe{
+    background: none;
+    box-shadow: none;
+}
+.mfp-iframe-holder .mfp-content{
+    background: none;
+}
+.mfp-iframe-holder .mfp-image-holder .mfp-close, .mfp-iframe-holder .mfp-close{
+    right: 30%;
+}
+*/
+
+/*.mfp-wrap.mfp-gallery{
+    height: 100% !important;
+}*/
+/*.mfp-wrap.mfp-gallery .mfp-img{
+    max-height: 80% !important;
+}*/
+.ajax-popup,.inline-popup{
+    pointer-events: none;
+}
+.ajax-popup.mfp_ap,.inline-popup.mfp_ip{
+    pointer-events: all;
+}
+#custom-content {
+    display: block;
+    position: relative;
+    margin: 0 auto;
+}
+
+.white-popup {
+    position: relative;
+    background: #FFF;
+    padding: 20px;
+    width: auto;
+    max-width: 700px;
+    margin: 20px auto;
+}
+.white-popup:after {
+    position:relative;
+    display:block;
+    clear:both;
+    content:'';
+}
+.white-popup-block {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    background: #FFF;
+    padding: 10px  26px;
+    box-sizing: border-box;
+}
+
+.mfp-inline-holder .mfp-content, .mfp-ajax-holder .mfp-content{
+    width: auto;
+}
+.mfp-wrap,.mfp-bg{
+    position:fixed !important;
+    top:0 !important;
+    height: 100% !important;
+}
+
+.mfp-iframe-holder .mfp-content{
+    margin:10% auto;
+}
+.mfp-iframe-holder .mfp-content{
+
+}
+.mfp-iframe-holder .mfp-iframe-scaler iframe{
+    background: none;
+    box-shadow: none;
+}
+.mfp-iframe-holder .mfp-content{
+    background: none;
+}
+.mfp-iframe-holder .mfp-image-holder .mfp-close, .mfp-iframe-holder .mfp-close{
+    right: 30%;
+}
+.white-popup-block .mfp-close{
+    width: 32px;
+    height: 32px;
+    line-height: 24px;
+    margin: 2px;
+}
+

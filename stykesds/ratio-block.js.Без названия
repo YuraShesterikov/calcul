@@ -1,0 +1,63 @@
+(function (j) {
+    j.EM.RatioBlock = {};
+
+    j.fn.RatioBlock = function (options) {
+        var settings = j.extend({}, options);
+        return this.each(function () {
+            var $this = j(this);
+
+            var resizer = function () {
+                var ratio_ = $this.data('ratio');
+                ratio_ = ratio_.split('x');
+                var cur_w = $this.width();
+                var cur_h = $this.height();
+                //var ww = $(window).width();
+                // var wh = $(window).height();
+                var vertical = $this.is('[data-ratio-vertical]');
+
+                var nw = cur_w, nh = cur_h;
+                if (vertical) {
+                    nw = ratio_[0] / (ratio_[1] / cur_h);
+                } else {
+                    nh = ratio_[1] / (ratio_[0] / cur_w);
+                }
+
+                var as_min = $this.is('[data-ratio-min]');
+                var target = $this;
+
+                if ($this.is('[data-ratio-child]')) {
+                    var selctr = $this.data('ratio-child');
+                    var chld = $this.children(selctr);
+                    var target = chld;
+
+                }
+                if (target.size()) {
+                    if (as_min) {
+                        $this.css((vertical ? {'minWidth': nw, 'width': 'auto'} : {'minHeight': nh, 'height': 'auto'}));
+                    } else {
+                        $this.css((vertical ? {'width': nw, 'minWidth': 'auto'} : {'height': nh, 'minHeight': 'auto'}));
+                    }
+                }
+
+            };
+            resizer();
+            j(window).on('resize.ratioblock orientationchange.ratioblock', function () {
+                resizer();
+                setTimeout(resizer, 500);
+                setTimeout(resizer, 1000);
+                setTimeout(resizer, 2000);
+            });
+
+        });
+
+    };
+
+    j.EM.RatioBlock.init = function () {
+        j('[data-ratio]').RatioBlock();
+    };
+    j.EM.RatioBlock.init();
+
+
+})(jQuery);
+
+

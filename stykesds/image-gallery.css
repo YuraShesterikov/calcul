@@ -1,0 +1,71 @@
+.images-gallery {
+    margin: 0 !important;
+    /*height: 120px;*/
+    position: relative;
+    overflow: hidden;
+}
+.images-gallery .owl-item{
+    /*display:inline-block;
+    float:none;
+    width: auto !important;*/
+}
+.images-gallery:after,
+.images-gallery:before {
+    content: '';
+    display: block;
+}
+.images-gallery:after {
+    clear: both;
+}
+.images-gallery .item {
+    display:none;
+    /*overflow: hidden;*/
+    width: 100%;
+    /*height: 200px;*/
+    position: relative;
+    margin: 0 auto;
+}
+
+.images-gallery .owl-item .item {
+    display:block;
+}
+.images-gallery .item a {
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.images-gallery .item img {
+    /*box-shadow: 0 2px 3px #222;*/
+    height: auto;
+    width: 100%;
+    display: block;
+    position: relative;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
+    opacity: 1.0;
+    transition: all 0.5s ease;
+    border: 2px solid white;
+   /* outline: 1px solid #eaeaea;*/
+   /* box-shadow: 0 0 4px rgba(9, 26, 44, 0.2);*/
+}
+.images-gallery .item img:hover {
+    opacity: 0.9;
+}
+.images-gallery.owl-carousel .items-group {
+    overflow: hidden;
+    display: block;
+    position: relative;
+}
+.images-gallery.owl-carousel .items-group:after,
+.images-gallery.owl-carousel .items-group:before {
+    display: block;
+    content: '';
+    position: relative;
+    clear: both;
+    height: 0;
+}

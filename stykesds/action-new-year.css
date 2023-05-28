@@ -1,0 +1,51 @@
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    /* box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7); */
+  }
+
+  70% {
+    transform: scale(1);
+    /* box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); */
+  }
+
+  100% {
+    transform: scale(0.95);
+    /* box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); */
+  }
+}
+
+#ppf_form-action_new_year {
+  overflow-wrap: anywhere;
+}
+.action-new-year {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  z-index: 20;
+  max-width: 200px;
+}
+.action-new-year img {
+  width: 100%;
+  max-width: 100%;
+
+  /* box-shadow: 0 0 0 0 rgba(0, 0, 0, 1); */
+  transform: scale(1);
+  animation: pulse 3s infinite;
+}
+@media (max-width: 1279px) {
+  .action-new-year {
+    max-width: 100px;
+  }
+}
+/* @media (max-width: 767px) {
+  .action-new-year {
+    max-width: 140px;
+  }
+} */
+
+.popup-action-new-year .action-new-year-img {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 12px;
+}

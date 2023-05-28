@@ -1,0 +1,181 @@
+//data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
+(function (j) {
+    j.EM.LazyLoad = {
+        lazyImageObserver: null,
+        lazyBgBlockObserver: null,
+        lazyScriptBlockObserver: null,
+        lazyImageCallback_do: function (lazyImage) {
+            console.info('observing lazy');
+            lazyImage.src = lazyImage.dataset.src;
+            lazyImage.classList.remove("lazy");
+            lazyImage.observed=true;
+        },
+        lazyImageCallback: function (entries, observer) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    let lazyImage = entry.target;
+                    if(!lazyImage.observed) {
+                        j.EM.LazyLoad.lazyImageCallback_do(lazyImage);
+                    }
+                    observer.unobserve(lazyImage);
+                }
+            });
+        },
+        lazyBgCallback_do: function (lazyBgBlock) {
+            console.info('observing lazy-bg');
+            lazyBgBlock.style.backgroundImage = 'url(' + lazyBgBlock.dataset.bgsrc + ')';
+            lazyBgBlock.classList.remove("lazy-bg");
+            lazyBgBlock.observed=true;
+        },
+        lazyBgCallback: function (entries, observer) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    let lazyBgBlock = entry.target;
+                    if(!lazyBgBlock.observed) {
+                        j.EM.LazyLoad.lazyBgCallback_do(lazyBgBlock);
+                    }
+                    observer.unobserve(lazyBgBlock);
+                }
+            });
+        },
+        lazyScriptCallback_do: function (lazyScriptBlock) {
+            console.info('observing lazyscript');
+            var lazyScriptBlock_script =$(lazyScriptBlock).find('.lazyscript').get(0);
+            lazyScriptBlock_script.src = lazyScriptBlock_script.dataset.src;
+            lazyScriptBlock_script.classList.remove("lazyscript");
+            lazyScriptBlock.observed=true;
+        },
+        lazyScriptCallback: function (entries, observer) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    let lazyScriptBlock =  entry.target;
+                    if(!lazyScriptBlock.observed) {
+                        j.EM.LazyLoad.lazyScriptCallback_do(lazyScriptBlock);
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
+        },
+        init: function (elements) {
+
+            var observe_elements_img = elements.find('img.lazy');
+            j.EM.LazyLoad.observe_img(observe_elements_img);
+            var observe_elements_bg = elements.find('.lazy-bg');
+            j.EM.LazyLoad.observe_bg(observe_elements_bg);
+            var observe_elements_script = elements.find('.lazyscript').closest('div');
+            j.EM.LazyLoad.observe_script(observe_elements_script);
+            $(window).on('load',function(){
+                setTimeout(function(){
+                    var lazyImages = [].slice.call(observe_elements_img);
+                    lazyImages.forEach(function (lazyImage) {
+                        j.EM.LazyLoad.lazyImageCallback_do(lazyImage);
+                    });
+                    var lazyBgBlocks = [].slice.call(observe_elements_bg);
+                    lazyBgBlocks.forEach(function (lazyBgBlock) {
+                        j.EM.LazyLoad.lazyBgCallback_do(lazyBgBlock);
+                    });
+                    var lazyScriptBlocks = [].slice.call(observe_elements_script);
+                    lazyScriptBlocks.forEach(function (lazyScriptBlock) {
+                        j.EM.LazyLoad.lazyScriptCallback_do(lazyScriptBlock);
+                    });
+            },2000);
+            });
+        },
+        observe_img: function (observe_elements) {
+            if (observe_elements.length) {
+                if ("IntersectionObserver" in window) {
+                    if (j.EM.LazyLoad.lazyImageObserver === null) {
+                        j.EM.LazyLoad.lazyImageObserver = new IntersectionObserver(j.EM.LazyLoad.lazyImageCallback);
+                    }
+                    var lazyImages = [].slice.call(observe_elements);
+                    lazyImages.forEach(function (lazyImage) {
+                        j.EM.LazyLoad.lazyImageObserver.observe(lazyImage);
+                    });
+                } else {
+                    observe_elements.appear();
+                    observe_elements.on('appear', function (e, $affected) {
+                        var lazyImages = [].slice.call($affected);
+                        lazyImages.forEach(function (lazyImage) {
+                            j.EM.LazyLoad.lazyImageCallback_do(lazyImage);
+                        });
+                    });
+                }
+            }
+        },
+        observe_bg: function (observe_elements) {
+            if (observe_elements.length) {
+                if ("IntersectionObserver" in window) {
+                    if (j.EM.LazyLoad.lazyBgBlockObserver === null) {
+                        j.EM.LazyLoad.lazyBgBlockObserver = new IntersectionObserver(j.EM.LazyLoad.lazyBgCallback);
+                    }
+                    var lazyBgBlocks = [].slice.call(observe_elements);
+                    lazyBgBlocks.forEach(function (lazyBgBlock) {
+                        j.EM.LazyLoad.lazyBgBlockObserver.observe(lazyBgBlock);
+                    });
+                } else {
+                    observe_elements.appear();
+                    observe_elements.on('appear', function (e, $affected) {
+                        var lazyBgBlocks = [].slice.call($affected);
+                        lazyBgBlocks.forEach(function (lazyBgBlock) {
+                            j.EM.LazyLoad.lazyBgCallback_do(lazyBgBlock);
+                        });
+                    });
+                }
+            }
+        },
+        observe_script: function (observe_elements) {
+            if (observe_elements.length) {
+                if ("IntersectionObserver" in window) {
+                    if (j.EM.LazyLoad.lazyScriptBlockObserver === null) {
+                        j.EM.LazyLoad.lazyScriptBlockObserver = new IntersectionObserver(j.EM.LazyLoad.lazyScriptCallback);
+                    }
+                    var lazyScriptBlocks = [].slice.call(observe_elements);
+                    lazyScriptBlocks.forEach(function (lazyScriptBlock) {
+                        j.EM.LazyLoad.lazyScriptBlockObserver.observe(lazyScriptBlock);
+                    });
+                } else {
+                    observe_elements.appear();
+                    observe_elements.on('appear', function (e, $affected) {
+                        var lazyScriptBlocks = [].slice.call($affected);
+                        lazyScriptBlocks.forEach(function (lazyScriptBlock) {
+                            j.EM.LazyLoad.lazyScriptCallback_do(lazyScriptBlock);
+                        });
+                    });
+                }
+            }
+
+        },
+    };
+    j.EM.LazyInit = {
+        observer: new IntersectionObserver(function (entries, observer) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    console.info('LazyInit intersecting');
+                    let lazy_init_item = entry.target;
+                    j.EM.LazyInit.observer.unobserve(lazy_init_item);
+                    if (lazy_init_item.lazyinit !== undefined) {
+                        lazy_init_item.lazyinit(j(lazy_init_item));
+                    }
+
+                }
+            });
+        }),
+        set: function (lazy_elements, lazy_initfunction) {
+            if (!(lazy_elements instanceof jQuery)) {
+                console.log('object is not jQuery');
+            }
+            console.info('set LazyInit ');
+            if (lazy_elements.length > 0) {
+                var lazy_elements_dom = lazy_elements.get();
+                lazy_elements_dom.forEach(function (lazy_element) {
+                    lazy_element.lazyinit = lazy_initfunction;
+                    j.EM.LazyInit.observer.observe(lazy_element);
+                });
+            }
+        }
+    };
+
+    j(document).on('ready', function () {
+        j.EM.LazyLoad.init($('body'));
+    });
+})(jQuery);

@@ -1,0 +1,95 @@
+(function (j, w, d) {
+
+    if (j.isFunction(j.fn.inputmask)) {
+        j.EM.MaskedInput = {
+            'masks': {
+                'mask-phone': {
+                    "mask": "+7 (999) 999-99-99"
+                },
+                'mask-year': {
+                    "mask": "9999"
+                },
+                'mask-square': {
+                    "mask": "9{1,4}\.99",
+                    "rightAlign": true,
+                    greedy: true,
+                },
+                'mask-price': {
+                    "mask": "9{1,12}[.9{1,2}]",
+                    "rightAlign": true,
+                    greedy: false,
+                },
+                'mask-card': {
+                    "mask": "9{1,20}",
+                    greedy: false,
+                },
+
+                'mask-email': {
+                    mask: "*{1,20}[.*{1,20}][.*{1,20}][.*{1,20}]@*{1,20}[.*{2,6}][.*{1,2}]",
+                    greedy: false,
+                    onBeforePaste: function (pastedValue, opts) {
+                        pastedValue = pastedValue.toLowerCase();
+                        return pastedValue.replace("mailto:", "");
+                    },
+                    definitions: {
+                        '*': {
+                            validator: "[0-9A-Za-z!#$%&'*+/=?^_`{|}~-]",
+                            cardinality: 1,
+                            casing: "lower"
+                        }
+                    }
+                },
+                'mask-date': {
+                    "mask": "99.99.9999"
+                },
+            },
+            'init': function () {
+                j.EM.MaskedInput.masking();
+                if (j.EM.PPF !== undefined) {
+                    j.EM.PPF.form_open_actions.push(j.EM.MaskedInput.masking);
+                    j.EM.PPF.submit_validations.push(j.EM.MaskedInput.validate);
+                }
+            },
+            'masking': function (form) {
+                var mwhere = j(document);
+                if (form !== undefined && form.size()) {
+                    mwhere = form;
+                }
+                for (var mask_type in j.EM.MaskedInput.masks) {
+                    mwhere.find("input." + mask_type).not('.masked').each(function () {
+                        j(this).addClass('masked').inputmask(j.EM.MaskedInput.masks[mask_type]);
+                    });
+                }
+            },
+            'validate': function (form) {
+                var vwhere = this;
+                if (form !== undefined && form.size()) {
+                    vwhere = form;
+                }
+                var masked = vwhere.find('.masked');
+                var valid = true;
+                masked.each(function () {
+                    var prnt = j(this).parent('.form-group');
+                    if (!j(this).inputmask("isComplete")) {
+                        j(this).addClass('error');
+                        if(prnt.size()){
+                            prnt.addClass('has-error');
+                        }
+                        valid = false;
+                    } else {
+                        j(this).removeClass('error');
+                        if(prnt.size()){
+                            prnt.removeClass('has-error');
+                        }
+                    }
+                });
+                return valid;
+            },
+        };
+        j(d).ready(function () {
+            j.EM.MaskedInput.init();
+        });
+    } else {
+        console.warn('Для работы этого плагина требуется библиотека "inputmask" !');
+    }
+})(jQuery, window, document);

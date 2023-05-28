@@ -1,0 +1,194 @@
+/*Исправления и дополнения стандартных функций javascript*/
+
+if (Object.prototype.isDom === undefined) {
+    Object.defineProperty(Object.prototype, 'isDom', {
+        value: function () {
+            return (this.tagName==1);
+        },
+        enumerable: false
+    });
+}
+function getElementByAttribute(attr, value, root) {
+    root = root || document.body;
+    if(root.hasAttribute(attr) && root.getAttribute(attr) == value) {
+        return root;
+    }
+    var children = root.children,
+        element;
+    for(var i = children.length; i--; ) {
+        element = getElementByAttribute(attr, value, children[i]);
+        if(element) {
+            return element;
+        }
+    }
+    return null;
+}
+
+if (Array.prototype.indexOf === undefined) {
+    Object.defineProperty(Array.prototype, 'indexOf', {
+        value: function (val) {
+            var i = this.length;
+            while (i--) {
+                if (this[i] === val)
+                    return i;
+            }
+            return -1;
+        },
+        enumerable: false
+    });
+}
+if (Array.prototype.inArray === undefined) {
+    Object.defineProperty(Array.prototype, 'inArray', {
+        value: function (val) {
+            return this.indexOf(val) != -1;
+        },
+        enumerable: false
+    });
+}
+/*if (Object.prototype.values === undefined) {
+    Object.defineProperty(Object.prototype, 'values', {
+        value: function (array) {
+            var values = [];
+            for (var key in array) {
+                values.push(array[key]);
+            }
+            return values;
+        },
+        enumerable: false
+    });
+}*/
+if (Array.prototype.max === undefined) {
+    Object.defineProperty(Array.prototype, 'max', {
+        value: function () {
+            return Math.max.apply(null, this);
+        },
+        enumerable: false
+    });
+}
+if (Array.prototype.min === undefined) {
+    Object.defineProperty(Array.prototype, 'min', {
+        value: function () {
+            return Math.min.apply(null, this);
+        },
+        enumerable: false
+    });
+}
+
+if(String.prototype.isNumeric=== undefined){
+    Object.defineProperty(String.prototype, 'isNumeric', {
+        value: function (num) {
+            return !isNaN(num);
+            /*var anum = /^\-?\d+(\.?\d+)?$/;
+    return anum.test(val);*/
+
+        },
+        enumerable: false
+    });
+}
+if (String.prototype.matchAll === undefined) {
+    Object.defineProperty(String.prototype, 'matchAll', {
+        value: function (regexp) {
+            var matches = [];
+            this.replace(regexp, function() {
+                var arr = ([]).slice.call(arguments, 0);
+                var extras = arr.splice(-2);
+                arr.index = extras[0];
+                arr.input = extras[1];
+                matches.push(arr);
+            });
+            return matches.length ? matches : null;
+        },
+        enumerable: false
+    });
+}
+if (String.prototype.capitalize === undefined) {
+    Object.defineProperty(String.prototype, 'capitalize', {
+        value: function () {
+            return this.charAt(0).toUpperCase() + this.slice(1);
+        },
+        enumerable: false
+    });
+}
+Object.defineProperty(String.prototype, 'escapeHtml', {
+    value: function () {
+        var map =
+            {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+        return this.replace(/[&<>"']/g, function(m) {return map[m];});
+    },
+    enumerable: false
+});
+Object.defineProperty(String.prototype, 'decodeHtml', {
+    value: function () {
+        var map =
+            {
+                '&amp;': '&',
+                '&lt;': '<',
+                '&gt;': '>',
+                '&quot;': '"',
+                '&#039;': "'"
+            };
+        return this.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, function(m) {return map[m];});
+    },
+    enumerable: false
+});
+
+
+
+/*if (Object.prototype.closest === undefined) {
+    Object.defineProperty(Object.prototype, 'closest', {
+        value: function (node, selector, stop_selector ) {
+            var parent = node.parentNode;
+            while (true) {
+                if (parent.matches(stop_selector)) break;
+                if (parent.matches(selector)) break;
+                parent = parent.parentNode; // get upper parent and check again
+            }
+            if (parent.matches(stop_selector)) parent = null; // when parent is a tag 'body' -> parent not found
+            return parent;
+        },
+        enumerable: false
+    });
+}*/
+
+/*
+Object.prototype.flip = function (  ) {
+var key, tmp_ar = { };
+for ( key in this ) {
+if ( !this.hasOwnProperty( key ) )
+continue;
+tmp_ar[this[key]] = key;
+}
+return tmp_ar;
+};
+
+Object.prototype.keys = function (  ) {
+var key, tmp_ar = [
+], cnt;
+cnt = 0;
+for ( key in this ) {
+if ( !this.hasOwnProperty( key ) )
+continue;
+tmp_ar[cnt] = key;
+cnt++;
+}
+return tmp_ar;
+};
+ */
+/*Исправления и дополнения  функций jQuery*/
+if (jQuery) {
+    if (!jQuery.browser) {
+        jQuery.browser = {
+            msie: ((/msie|trident/i).test(navigator.userAgent) ? true : false)
+        };
+    }
+    if (!jQuery.curCSS) {
+        jQuery.curCSS = jQuery.css;
+    }
+}
+

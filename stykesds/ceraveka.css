@@ -1,0 +1,24 @@
+
+@font-face {
+    font-family: 'ALS Schlange sans_5';
+    src: url('ceraveka/alsschlangesans-bold.eot');
+    src: local('☺'), url('ceraveka/alsschlangesans-bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Cera VEKA_5';
+    src: url('ceraveka/ceraveka-regular.eot');
+    src: local('☺'), url('ceraveka/ceraveka-regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Cera VEKA_5';
+    src: url('ceraveka/ceraveka-bold.eot');
+    src: local('☺'), url('ceraveka/ceraveka-bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}

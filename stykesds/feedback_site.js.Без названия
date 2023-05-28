@@ -1,0 +1,382 @@
+(function (j, w, d) {
+  if (j.isFunction(j.fn.magnificPopup)) {
+    j.EM.PPF = {
+      form_open_actions: [],
+      submit_validations: [],
+      send_success: [],
+      send_error: [],
+      send_complete: [],
+      form_open_actions_exec: function (popupform) {
+        for (var foa in j.EM.PPF.form_open_actions) {
+          var action = j.EM.PPF.form_open_actions[foa];
+          action.apply(popupform);
+        }
+      },
+      submit_validations_exec: function (popupform) {
+        var promices = [];
+        if (j.EM.PPF.submit_validations.length > 0) {
+          return Promise.all(
+            j.EM.PPF.submit_validations.map(function (action) {
+              return new Promise(function (resolve, reject) {
+                try {
+                  var result = action.apply(popupform);
+                  resolve(result);
+                } catch (e) {
+                  console.error(e);
+                  resolve(false);
+                }
+              });
+            })
+          );
+        }
+        return false;
+      },
+      init: function () {
+        j(d).delegate(".ppf-popup-form-open", "click", function (e) {
+          e.preventDefault();
+          var fid = j(this).data("id");
+          var selector = ".ppf-popup-form#" + fid;
+          var ppf_opt = {
+            type: "inline",
+            items: {
+              src: j(selector),
+              type: "inline",
+            },
+            tLoading: "Загрузка...",
+            closeOnContentClick: false,
+            closeOnBgClick: true,
+            showCloseBtn: true,
+            mainClass: "mfp-fade",
+            removalDelay: 300,
+            callbacks: {
+              open: function () {
+                //this.content - form
+                j.EM.PPF.form_open_actions_exec(j(this.content));
+              },
+            },
+          };
+          if (j(this).data("ajax")) {
+            var href = j(this).attr("href");
+            if (!href) {
+              href = j(this).data("href");
+            }
+            let url, query;
+            [url, query] = href.split("?");
+            let qry = query ? query.split("&") : [];
+            if (j(this).data("query")) {
+              var qry_ = j(this).data("query").split("&");
+              for (var i in qry_) {
+                qry.push(qry_[i]);
+              }
+            }
+            var ftitle = j(this).data("ftitle");
+            if (!ftitle) {
+              ftitle = j(this).text();
+            }
+            qry.push("ftitle=" + encodeURIComponent(ftitle));
+
+            qry.push("ftype=" + fid);
+            if (!url) {
+              url = "/u/feedback/";
+            }
+            let item_href = url;
+            if (j(this).data("method")) {
+              ppf_opt.ajax = { settings: { method: j(this).data("method") } };
+              if (ppf_opt.ajax.settings.method === "post") {
+                ppf_opt.ajax.settings.data = qry.join("&");
+              }
+            } else {
+              item_href += (qry.length ? "?" : "") + qry.join("&");
+            }
+            ppf_opt.type = "ajax";
+            ppf_opt.items = {
+              src: item_href,
+              type: "ajax",
+            };
+            ppf_opt.callbacks = {
+              ajaxContentAdded: function () {
+                //this.content - form
+                j.EM.PPF.form_open_actions_exec(j(this.content));
+              },
+            };
+          }
+          j.magnificPopup.open(ppf_opt);
+          return false;
+        });
+        j(d).delegate(".ppf-popup-form form", "submit", function (e) {
+          e.preventDefault();
+          var _that_ = this;
+          var prms = j.EM.PPF.submit_validations_exec(
+            j(this).closest(".ppf-popup-form")
+          );
+          if (prms !== false) {
+            prms.then(function (results) {
+              var total_result = results.every((res) => {
+                return res;
+              });
+              if (total_result) {
+                j.EM.PPF.submit.apply(j(_that_));
+              }
+            });
+          }
+          return false;
+        });
+      },
+      close: function () {
+        var magnificPopup = j.magnificPopup.instance; // save instance in magnificPopup variable
+        if (j(magnificPopup.content).is(".ppf-popup-form-open")) {
+          magnificPopup.close();
+        }
+      },
+      submit: function (action) {
+        var self_form = this;
+        var data = self_form.serialize();
+        data += "&submit=1";
+        data += "&action=send";
+        var method = self_form.attr("method");
+        if (method) {
+          method = method.toLowerCase();
+        }
+        if (method != "post" && method != "get") {
+          method = "post";
+        }
+        var action = self_form.attr("action");
+        if (!action) {
+          action = document.location.href;
+        }
+        j.ajax({
+          async: false,
+          type: method,
+          url: action,
+          data: data,
+          dataType: "json",
+          success: function (data, textStatus, jqXHR) {
+            for (var ss in j.EM.PPF.send_success) {
+              var action = j.EM.PPF.send_success[ss];
+              action.apply(self_form, [data, textStatus, jqXHR]);
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            for (var se in j.EM.PPF.send_error) {
+              var action = j.EM.PPF.send_error[se];
+              action.apply(self_form, [jqXHR, textStatus, errorThrown]);
+            }
+          },
+          complete: function (jqXHR, textStatus) {
+            for (var sc in j.EM.PPF.send_complete) {
+              var action = j.EM.PPF.send_complete[sc];
+              action.apply(self_form, [jqXHR, textStatus,data]);
+            }
+          },
+        });
+        return false;
+      },
+    };
+  } else {
+    console.warn(
+      'Для работы этого плагина требуется библиотека "magnificPopup" !'
+    );
+  }
+
+  j(w).load(function () {
+    j.EM.PPF.init();
+    j.EM.PPF.submit_validations.push(function (form) {
+      var vwhere = this;
+      if (form !== undefined && form.size()) {
+        vwhere = form;
+      }
+      vwhere.find(".ppf-messages").html("");
+      return true;
+    });
+    j.EM.PPF.form_open_actions.push(function (form) {
+      var vwhere = this;
+      if (form !== undefined && form.size()) {
+        vwhere = form;
+      }
+      vwhere.find(".ppf-success").remove();
+      vwhere.find(".ppf-messages").html("");
+      var form = vwhere.find(".ppf-form");
+      form.show();
+      form.get(0).reset();
+    });
+    j.EM.PPF.submit_validations.push(function (form) {
+      var vwhere = this;
+      if (form !== undefined && form.size()) {
+        vwhere = form;
+      }
+      var required = vwhere.find("[data-required]");
+      var valid = true;
+      required.each(function () {
+        var f_valid = true;
+        if (
+          j(this).is("input[type=text]") ||
+          j(this).is("input[type=email]") ||
+          j(this).is("input[type=number]")
+        ) {
+          f_valid = j(this).val();
+        } else if (j(this).is("select")) {
+          f_valid = j(this).val();
+        } else if (j(this).is("textarea")) {
+          f_valid = j(this).val();
+        } else if (
+          j(this).is("input[type=checkbox]") ||
+          j(this).is("input[type=radio]")
+        ) {
+          f_valid = j(this).is(":checked");
+        }
+        if (!f_valid) {
+          j(this).addClass("error");
+          var prnt = j(this).parent();
+          if (prnt.is("label")) {
+            prnt.addClass("error");
+          }
+          valid = false;
+        } else {
+          j(this).removeClass("error");
+          var prnt = j(this).parent();
+          if (prnt.is("label")) {
+            prnt.removeClass("error");
+          }
+        }
+      });
+      return valid;
+    });
+
+    j.EM.CCH.replace();
+    j.EM.UA.init();
+    j.EM.PPF.form_open_actions.push(function (form) {
+      var vwhere = this;
+      if (form !== undefined && form.size()) {
+        vwhere = form;
+      }
+      j.EM.UA.adding(vwhere);
+      j.EM.CCH.replace();
+    });
+    j.EM.PPF.submit_validations.push(function (form) {
+      var vwhere = this;
+      if (form !== undefined && form.size()) {
+        vwhere = form;
+      }
+      var valid = true;
+      valid = j.EM.UA.validate(vwhere);
+      return valid;
+    });
+
+    /*   j.EM.RC.init();
+        j.EM.PPF.submit_validations.push(function (form) {
+            var vwhere = this;
+            if (form !== undefined && form.size()) {
+                vwhere = form;
+            }
+            var rcvp = j.EM.RC.validate(vwhere);
+            rcvp.then(function (rcv) {
+                if (rcv === false) {
+                    var messages = vwhere.find('.ppf-messages');
+                    messages.append('<div class="ppf-error">Вы ведете себя как робот!</div>');
+
+                } else if (rcv.valid === false) {
+                    if (rcv.errors) {
+                        var messages = vwhere.find('.ppf-messages');
+                        messages.append(rcv.errors);
+                    }
+                    rcv = rcv.valid;
+                }
+                return rcv;
+
+            });
+            return rcvp;
+
+
+        });
+        j.EM.PPF.form_open_actions.push(j.EM.RC.adding);
+
+*/
+function parseQuery(queryString) {
+    var query = {};
+    var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+    for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].split('=');
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+    }
+    return query;
+}
+function webjack_get_cookie(name) {
+	try {
+		let matches = document.cookie.match(new RegExp(
+		"(?:^|; )" + name.replace(/([\.$?|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+		));
+		return matches ? decodeURIComponent(matches[1]) : undefined;
+	} catch (err) {
+		console.log(err);
+	}
+}
+
+
+    j.EM.PPF.send_complete.push(function (jqXHR, textStatus,data) {
+      /*var params={'event_category':'form','event_callback':function(){
+                    ym(65574922, 'reachGoal', 'send');
+                }};
+            gtag('event','send',params);*/
+		try{
+			 
+			data = parseQuery(data);
+			
+			
+			let wj_data = {};
+			for (let vn in data){
+				let vk = vn.replace('ppf-','');
+				if(vk=='ua-check' || vk=='submit' || vk=='action'){
+					continue;
+				}
+				wj_data[vk]=data[vn].replace(/\+/g,' ');
+			}
+			uri_data = parseQuery(window.location.search);
+			
+			wj_data = $.extend(wj_data,uri_data);
+			
+			wj_data['roistat_visit'] = webjack_get_cookie('roistat_visit');
+			
+			console.log(wj_data);
+			
+			  $.ajax({
+					'url': 'https://webjack.ru/webhooks/http/a6e69c501ca642f0b43bb2bf73c374dc/', 
+					'method': 'post',           
+					'data': wj_data,     
+					'success': function(data){   
+
+					}
+				});
+			
+			  ym(67738489, "reachGoal", "zayavka");
+			  var gtmData = {
+				event: "UA event",
+				eventCategory: "Отправлена заявка",
+				eventAction: undefined,
+				eventLabel: undefined,
+			  };
+			  dataLayer.push(gtmData);
+			  
+			 
+		}catch(e){
+				console.error(e);
+		}
+	  
+    });
+    j.EM.PPF.send_success.push(function (data) {
+      //console.log(this);
+      if (data.status) {
+        var success_message = this.is("[data-success-message]")
+          ? this.data("success-message")
+          : "Сообщение отправлено!";
+        //$.conversion();
+        this.before('<h4 class="ppf-success">' + success_message + "</h4>");
+        this.hide();
+      } else {
+        if (data.errors) {
+          var messages = this.find(".ppf-messages");
+          messages.append(data.errors);
+        }
+      }
+    });
+  });
+})(jQuery, window, document);

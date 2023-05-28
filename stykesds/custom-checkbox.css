@@ -1,0 +1,76 @@
+
+label.custom-checkbox,
+label.custom-radio {
+
+}
+
+label.custom-checkbox > input[type=checkbox],
+label.custom-radio > input[type=radio] {
+    display: none;
+}
+
+label.custom-checkbox .checkbox,
+label.custom-radio .radio {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    position: relative;
+}
+
+label.custom-checkbox .checkbox,
+label.custom-radio .radio {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+}
+
+label.custom-checkbox .label,
+label.custom-radio .label {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 18px;
+    padding: 0 0 0 15px;
+    color: #333;
+    font-size: 14px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: 'regular', sans-serif;
+    font-weight: 400;
+    white-space: normal;
+    width: calc(100% - 40px);
+    text-align: left;
+}
+
+label.custom-checkbox > input[type=checkbox]:checked + .checkbox::before,
+label.custom-radio > input[type=radio]:checked + .radio::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    left: 2px;
+    background: #888;
+    border-radius: 0px;
+}
+label.custom-checkbox > input[type=checkbox]:checked + .checkbox::before{
+    content: "\f00c";
+    display: block;
+    position: absolute;
+    line-height: 1;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    left: 2px;
+    background: transparent;
+    border-radius: 0px;
+    font-family: FontAwesome;
+}
+
+
+label.custom-radio .radio,
+label.custom-radio > input[type=radio]:checked + .radio::before {
+    border-radius: 0%;
+}

@@ -1,0 +1,33 @@
+(function (j, w, d) {
+    j.EM.CCH = {
+        'replace': function (block) {
+            var bwhere = j(document);
+            if (block !== undefined && block.size()) {
+                bwhere = block;
+            }
+            bwhere.find("input[type=checkbox].custom-checkbox").each(function () {
+                j(this).removeClass('custom-checkbox');
+                j(this).wrap('<label class="custom-checkbox"></label>');
+                var clbl = j(this).parent('.custom-checkbox');
+                clbl.append('<span class="checkbox"></span>');
+                var title = j(this).data('title');
+                if (title) {
+                    clbl.append(' <span class="label">' + title + '</span>');
+                }
+            });
+            bwhere.find("input[type=radio].custom-radio").each(function () {
+                j(this).removeClass('custom-radio');
+                j(this).wrap('<label class="custom-radio"></label>');
+                var clbl = j(this).parent('.custom-radio');
+                clbl.append('<span class="radio"></span>');
+                var title = j(this).data('title');
+                if (title) {
+                    clbl.append(' <span class="label">' + title + '</span>');
+                }
+            });
+        }
+    };
+    j(d).ready(function () {
+        j.EM.CCH.replace();
+    });
+})(jQuery, window, document);

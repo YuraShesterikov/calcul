@@ -1,0 +1,1181 @@
+window.calculator = {
+    windows: [],
+    data: {
+        //решение Века
+        decisions: [ // http://joxi.ru/Q2KDPpqI40nloA - вот это говно должно падать туда
+            /*{
+             id: 1,
+             title: "Окно для загородного дома"
+             },
+             {
+             id: 2,
+             title: "Окно для защиты от шума"
+             },
+             {
+             id: 3,
+             title: "Окно для детской"
+             },
+             {
+             id: 4,
+             title: "Окно с защитой от взлома"
+             },
+             {
+             id: 5,
+             title: "Энергоэффективное окно"
+             },
+             {
+             id: 6,
+             title: "Простое окно"
+             }*/
+        ],
+        // Профиль Века
+        profiles: [
+            /*{
+             id: 1,
+             title: "EUROLINE"
+             },
+             {
+             id: 2,
+             title: "VEKASLIDE"
+             },
+             {
+             id: 3,
+             title: "PROLINE"
+             },
+             {
+             id: 4,
+             title: "SOFTLINE"
+             },
+             {
+             id: 5,
+             title: "SOFTLINE 82"
+             },
+             {
+             id: 6,
+             title: "ALPHALINE"
+             }*/
+        ],
+        // Стеклопакет
+        glazed: [
+            /*{
+             id: 1,
+             title: "Двухкамерные стеклопакеты"
+             },
+             {
+             id: 2,
+             title: "Однокамерные стеклопакеты"
+             },
+             {
+             id: 3,
+             title: "Энергосберегающие стеклопакеты"
+             },
+             {
+             id: 4,
+             title: "Декоративная раскладка"
+             }*/
+        ],
+        //цвет
+        colors: [ //http://veka.demo.notamedia.ru/bitrix/admin/iblock_element_admin.php?IBLOCK_ID=30&type=production&lang=ru&find_el_y=Y
+            /*{
+             id: 1,
+             title: 'Белый',
+             image: 'http://veka.demo.notamedia.ru/upload/iblock/cc8/cc87f8cf7e604311b4c5fe6c7f254bda.jpg'
+             },
+             {
+             id: 2,
+             title: 'вариант 2',
+             image: 'http://veka.demo.notamedia.ru/upload/iblock/799/7991090fb7daa42fb921fdeb1687386c.jpg'
+             },
+             {
+             id: 3,
+             title: 'вариант 3',
+             image: 'http://veka.demo.notamedia.ru/upload/iblock/761/761b000ebb2caad0e170c8b05e1194cc.jpg'
+             },
+             {
+             id: 4,
+             title: 'вариант 4',
+             image: 'http://veka.demo.notamedia.ru/upload/iblock/e4d/e4df667da1aae044ec3c12c1433ab7cf.jpg'
+             },
+             {
+             id: 5,
+             title: 'вариант 5',
+             image: 'http://veka.demo.notamedia.ru/upload/iblock/74d/74d414fbb234859ca284a85673322d57.jpg'
+             },
+             {
+             id: 6,
+             title: 'вариант 6',
+             image: 'http://veka.demo.notamedia.ru/upload/iblock/7b9/7b9e01fdca59498c43e93bd6c1f580b1.jpg'
+             },
+             {
+             id: 7,
+             title: 'вариант 7',
+             image: 'http://veka.demo.notamedia.ru/upload/iblock/b0a/b0a5b28bf00c3f5aea09b2475ead1f2b.jpg'
+             }*/
+        ],
+        sashes: [
+            /*{
+             id: 'g',
+             title: "Глухое"
+             },
+             {
+             id: 'po',
+             title: "Поворотно-откидное"
+             },
+             {
+             id: 'p',
+             title: "Поворотное"
+             },
+             {
+             id: 'o',
+             title: "Откидное"
+             }*/
+        ],
+        formats: [
+            /*{
+             id: 1,
+             title: "Одностворчатое окно",
+             sashes: ['p']
+             },
+             {
+             id: 2,
+             title: "Двухстворчатое окно",
+             sashes: ['g','po']
+             },
+             {
+             id: 3,
+             title: "Трехстворчатые окна",
+             sashes: ['g','po','g']
+             },
+             {
+             id: 4,
+             title: "Трехстворчатые окна с фрамугой",
+             sashes: ['o','g','po','g']
+             },
+             {
+             id: 5,
+             title: "Балконный блок двухстворчатый",
+             sashes: ['po','g','po']
+             },
+             {
+             id: 6,
+             title: "Балконный блок одностворчатый",
+             sashes: ['po','po']
+             },
+             {
+             id: 7,
+             title: "Нестандартная конструкция",
+             sashes: ['g','po','g']
+             }*/
+        ]
+    },
+    inputs: {
+        //decisions:   	'select[name="decisions"]',
+        //profiles:    	'select[name="profiles"]',
+        glazed: 'select[name="glazed"]',
+        colors: 'select[name="color"]',
+        width: 'input[name="width"]',
+        height: 'input[name="height"]',
+        //name:        	'.window-form input[name="name"]',
+        //description: 	'.window-form textarea[name="description"]',
+    },
+    calc_wind: null,
+    init: function () {
+        var urlPage = window.location.href;
+        this.calc_wind = $('.calc-window:not(.clone)');
+        for (input in this.inputs) {
+            this.inputs[input] = $(this.inputs[input]);
+            watchInput(input);
+        }
+
+
+        this.getBuffer();
+        calculator.setupDataRanges(1);
+        $('body').addClass('calc-page');
+
+        $('.js-new-window').off('click');
+        $('.js-new-window').click(function () {
+            calculator.newWindow();
+            calculator.renderPageProxy();
+        });
+        $('.window-type__elem').click(function () {
+            calculator.current.formats = $(this).data('id');
+
+            for (var i = 0; i < calculator.data.formats.length; i++) {
+                if (calculator.data.formats[i].id == calculator.current.formats) {
+                    calculator.current.sashes = calculator.data.formats[i].sashes.slice(0);
+
+                    // set min/max ranges and default values for width&height fields
+                    calculator.setupDataRanges(i);
+
+                    break;
+                }
+            }
+
+            calculator.saveBuffer();
+            calculator.renderPageProxy();
+            calculator.renderCart();
+        });
+
+        if (urlPage.indexOf('/calc/?edit=') >= 0) {
+            var urlArray = urlPage.split('/calc/?edit=');
+
+            setTimeout(function () {
+                $('.calc-window__item[data-window-id="' + parseInt(urlArray[1]) + '"]').trigger('click');
+            });
+        }
+
+        windowTypeCarousel();
+        $(window).resize(windowTypeCarousel);
+
+
+        var calc_window_products = $('#calc-window-products');
+        var calc_window__item_list = calc_window_products.find('.calc-window__item-list');
+
+        calc_window__item_list.delegate('.calc-window__item', 'show.bs.tab', function (e) {
+            var cart_item_id = $(this).data('window-id');
+            window.calc = window.calc ?? {};
+            const lastId = window.calc.lastId ?? 0,
+                direction = lastId > cart_item_id ? 'left' : 'right';
+            window.calc.lastId = cart_item_id;
+            calculator.openWindow(cart_item_id, direction);
+        });
+        var window_image = $('.window-image');
+        window_image.on('click', '.calc-window-copy-trigger', function () {
+            calculator.copyWindow(calculator.current.id);
+        });
+        window_image.on('click', '.calc-window-remove-trigger', function () {
+            calculator.removeWindow(calculator.current.id);
+        });
+        
+        $("#calc-order-form").on('submit', function (e) {
+            e.preventDefault();
+            var w_inf_tabs = $('.calc-window__products_tabs_content').find('.calc-window__item_info .calc-window__item-right').clone();
+            w_inf_tabs.find('.calc-window__item-icons').remove();
+            w_inf_tabs.find('.calc-window__item-image').remove();
+            j = $;
+            var self_form = $(this);
+            var _that_ = this;
+
+            var prms = $.EM.PPF.submit_validations_exec($(this));
+            if (prms !== false) {
+                prms.then(function (results) {
+                    var total_result = results.every(res => {
+                        return res;
+                    });
+//                    console.log(results);
+//                    console.log(total_result);
+                    if (total_result) {
+                        $.EM.PPF.submit.apply($(_that_));
+                    }
+                });
+            }
+
+            var result_text = '';
+            w_inf_tabs.each(function () {
+                var text_ = [];
+                $(this).find('.calc-window__item-text h3 , .calc-window__item-text span, .calc-window__item-desc').each(function(){
+                    text_.push($.trim($(this).text()));
+                });
+                result_text += text_.join(' - ')+"\n";
+                console.log( text_ );
+            });
+            $("#calc-order-form input[name='ppf-text']").val(result_text);
+        });
+
+        $('.calc-window__form-button > button').on('click', function (e) {
+            e.preventDefault();
+            var w_inf_tabs = $('.calc-window__products_tabs_content').find('.calc-window__item_info .calc-window__item-right').clone();
+            w_inf_tabs.find('.calc-window__item-icons').remove();
+            w_inf_tabs.find('.calc-window__item-image').remove();
+
+            var result_text = '';
+            w_inf_tabs.each(function () {
+                var text_ = [];
+                $(this).find('.calc-window__item-text h3 , .calc-window__item-text span, .calc-window__item-desc').each(function(){
+                    text_.push($.trim($(this).text()));
+                });
+                result_text += text_.join(' - ')+"\n";
+                console.log( text_ );
+            });
+
+
+            var fid = 'calcorder';
+            var selector = '.ppf-popup-form#' + fid;
+            var ppf_opt = {
+                type: 'inline',
+                items: {
+                    src: $(selector),
+                    type: 'inline',
+                },
+                tLoading: 'Загрузка...',
+                closeOnContentClick: false,
+                closeOnBgClick: true,
+                showCloseBtn: true,
+                mainClass: 'mfp-fade',
+                removalDelay: 300,
+                callbacks: {
+
+                    open: function () {
+                        //this.content - form
+                        $.EM.PPF.form_open_actions_exec($(this.content));
+                    }
+                }
+            };
+
+            var href = '/u/feedback/';
+            let url, query;
+            [url, query] = href.split('?');
+            let qry = query ? query.split('&') : [];
+            var ftitle = jQuery(this).data('ftitle');
+            if(!ftitle){
+                ftitle = jQuery(this).text();
+            }
+            qry.push('ftitle='+encodeURIComponent(ftitle));
+
+            qry.push('fid=' + encodeURIComponent('Краснодар Калькулятор запрос'));
+            qry.push('ftype=' + fid);
+
+            qry.push('ppf-text=' + encodeURIComponent(result_text));
+
+            let item_href = url;
+            if ($(this).data('method')) {
+                ppf_opt.ajax = {settings: {method: j(this).data('method')}};
+                if (ppf_opt.ajax.settings.method === 'post') {
+                    ppf_opt.ajax.settings.data = qry.join('&');
+                }
+            } else {
+                item_href += (qry.length ? '?' : '') + qry.join('&');
+            }
+            ppf_opt.type = 'ajax';
+            ppf_opt.items = {
+                src: item_href,
+                type: 'ajax',
+            };
+            ppf_opt.callbacks = {
+                ajaxContentAdded: function () {
+                    $.EM.PPF.form_open_actions_exec($(this.content));
+                },
+
+            };
+
+            $.magnificPopup.open(ppf_opt);
+            return false;
+        });
+
+
+    },
+    setupDataRanges: function (i, animate, direction) {
+
+        var widthField = $('.window-form input[name="width"]');
+        var heightField = $('.window-form  input[name="height"]');
+
+        var minWidth = this.data.formats[i].width_range.min;
+        var maxWidth = this.data.formats[i].width_range.max;
+
+        var minHeight = this.data.formats[i].height_range.min;
+        var maxHeight = this.data.formats[i].height_range.max;
+
+        this.current.width = Math.max(this.current.width, minWidth);
+        this.current.height = Math.max(this.current.height, minHeight);
+
+        widthField.val(this.current.width);
+        widthField.attr('data-min', minWidth);
+        widthField.attr('data-max', maxWidth);
+        widthField.attr('placeholder', 'от ' + minWidth + ' до ' + maxWidth);
+
+        heightField.val(this.current.height);
+        heightField.attr('data-min', minHeight);
+        heightField.attr('data-max', maxHeight);
+        heightField.attr('placeholder', 'от ' + minHeight + ' до ' + maxHeight);
+
+        validateRange(widthField);
+        validateRange(heightField);
+
+        this.renderCart();
+        if (animate) {
+            this.renderPageAnimated('set', direction);
+        } else {
+            this.renderPageProxy();
+        }
+
+    },
+    renderCart: function () {
+        var html_tabs = '';
+        var html_tabs_content = '';
+        var windowLangTitlte = $('.calc-window__item-list').data('windows-title');
+
+        for (var i = 0; i < this.windows.length; i++) {
+            var dimensions = this.windows[i].width + ' мм' + ' x ' + this.windows[i].height + ' мм';
+            var svgId = (this.windows[i].formats == 1 ? '' : '-' + this.windows[i].formats);
+
+            var copyButton = '<div class="calc-window__item-icon calc-window__item-file"\
+												onclick="calculator.copyWindow(' + this.windows[i].id + ');">\
+	                    					<svg class="icon icon-doc">\
+	                    						<use xlink:href="#icon-doc"></use>\
+	                    					</svg>\
+	                    				</div>';
+
+            var deleteButton = '<div class="calc-window__item-icon calc-window__item-delete"\
+	                    						onclick="calculator.removeWindow(' + this.windows[i].id + ');">\
+	                    					<svg class="icon icon-trash ">\
+	                    						<use xlink:href="#icon-trash"></use>\
+	                    					</svg>\
+	                    				</div>';
+
+            var sashesList = [];
+            for (var key in this.windows[i].sashes) {
+                sashesList.push(getNameById(this.windows[i].sashes[key], this.data.sashes));
+            }
+
+            var desc = this.data.formats[this.windows[i].formats - 1].title + ' (' + sashesList.join(', ') + '), '
+                + getNameById(this.windows[i].colors, this.data.colors);
+
+            if (this.windows[i].glazed > 0) {
+                desc += ', ' + getNameById(this.windows[i].glazed, this.data.glazed);
+            }
+            var is_active = (this.current.id == this.windows[i].id);
+
+            html_tabs += '<div class=" nav-item " >\
+                                <div class="nav-link calc-window__item ' + (is_active ? 'active' : '') + '" data-window-id="' + this.windows[i].id + '" \
+                role="tab" data-toggle="tab" aria-selected="' + (is_active ? 'true' : 'false') + '" aria-controls="tovarTab' + (i + 1) + '"  data-target="#tovarTab' + (i + 1) + '">\
+                                    <div class="calc-window__item-left">\
+                                        <div class="calc-window__item-number">' + (i + 1) + '</div>\
+                                    </div>\
+                                </div>\
+                            </div>';
+            //data-onclick="calculator.openWindow(' + this.windows[i].id + ');"\
+
+            html_tabs_content += '<div class="calc-window__item_info tab-pane ' + (is_active ? 'active show' : '') + '" data-window-id="' + this.windows[i].id + '" \
+              role="tabpanel"  id="tovarTab' + (i + 1) + '" aria-labelledby="tovarTab' + (i + 1) + '" data-parent="#calc-window-products">\
+                                        <div class="calc-window__item-right">\
+                                            <div class="calc-window__item-image">\
+                                                <svg class="icon icon-window-type' + svgId + '">\
+                                                    <use xlink:href="#icon-window-type' + svgId + '"></use>\
+                                                </svg>\
+                                            </div>\
+                                            <div class="calc-window__item-text">\
+                                                <h3>' + windowLangTitlte + ' №' + (i + 1) + '</h3><span>' + dimensions + '</span>\
+                                            </div>\
+                                            <div class="calc-window__item-icons">\
+                                                ' + (!this.disableCopy ? copyButton : '') + '\
+                                                ' + (this.windows.length > 1 ? deleteButton : '') + '\
+                                            </div>\
+                                            <div class="calc-window__item-desc">\
+                                                <p>' + desc + '</p>\
+                                            </div>\
+                                        </div>\
+                                    </div>';
+        }
+        var calc_window_remove_trigger = $('.window-image .calc-window-remove-trigger');
+        if (this.windows.length > 1) {
+            calc_window_remove_trigger.show(0);
+        } else {
+            calc_window_remove_trigger.hide(0);
+        }
+
+        var calc_window__products_tabs = $('.calc-window__products_tabs');
+        var calc_window__products_tabs_content = $('.calc-window__products_tabs_content');
+        var calc_window__item_list = calc_window__products_tabs.find('.calc-window__item-list');
+
+        calc_window__item_list.html(html_tabs);
+        calc_window__products_tabs_content.html(html_tabs_content);
+
+        //$('.ordering-panel__control span').html(this.windows.length+decles(this.windows.length,[' ок','он','но','на']));
+    },
+    editWindow: function (url) {
+        var hrefLink = window.location.protocol + "//" + window.location.hostname + "/calc/?edit=" + url;
+        window.open(hrefLink);
+    },
+    checkDecisions: function () {
+        var _this = this;
+        var currentDecisionId = this.current.decisions;
+        this.data.decisions.forEach(function (decision, i) {
+            if (decision.id == currentDecisionId) {
+                _this.current.profiles = decision.profile;
+                _this.current.glazed = decision.glazed;
+                _this.current.colors = _this.data.colors[0].id;
+            }
+        });
+    },
+    renderPageProxy: function () {
+        var _this = this;
+        var _calcwindow_ = $('#calcwindow');
+        _calcwindow_.addClass('loading');
+        setTimeout(function () {
+            _this.renderPage();
+            setTimeout(function () {
+                _calcwindow_.removeClass('loading');
+            },300);
+        },100);
+
+    },
+    renderPageAnimated: function (type, direction = 'left') {
+        var _this = this;
+        var _calcwindow_ = $('#calcwindow');
+        _calcwindow_.addClass('loading');
+        setTimeout(function () {
+            console.log('renderPageAnimated - ' + type);
+            if (type === 'open' /*|| type === 'copy'*/ || type === 'remove' || type === 'set') {
+                $('.calc-window.clone').remove();
+                var calc_window = $('.calc-window:not(.clone)');
+                var calc = calc_window.parent('.calc');
+                var v_copy = calc_window.clone(false);
+                v_copy.addClass('clone');
+                v_copy.insertBefore(calc_window);
+                calc_window.addClass('cloned');
+                calc.addClass(direction === 'left' ? 'left' : 'right');
+                _this.renderPage();
+                calc.addClass('animate ');
+                setTimeout(function () {
+                    $('.calc-window.clone').remove();
+                    calc_window.removeClass('cloned');
+                    calc.removeClass('animate').removeClass('left').removeClass('right');
+                }, 900);
+
+            } else {
+                _this.renderPage();
+            }
+
+            setTimeout(function () {
+                _calcwindow_.removeClass('loading');
+            },300);
+        },100);
+    },
+    renderPage: function () {
+
+        //this.inputs.name.val(this.current.name);
+        //this.inputs.description.val(this.current.description);
+
+        //this.inputs.width.val(this.current.width);
+        renderText('.window-image__size.width span #data', (this.current.width != '' ? this.current.width : 0));
+        //this.inputs.height.val(this.current.height);
+        renderText('.window-image__size.height span #data', (this.current.height != '' ? this.current.height : 0));
+        //this.inputs.description.val(this.current.description);
+
+        //renderHtml(this.data.decisions, this.inputs.decisions, this.current.decisions);
+        //renderHtml(this.data.profiles, this.inputs.profiles, this.current.profiles);
+        renderHtml(this.data.glazed, this.inputs.glazed, this.current.glazed);
+        renderHtml(this.data.colors, this.inputs.colors, this.current.colors, 'c');
+
+
+        this.calc_wind.find('.window-type__elem').removeClass('is-active');
+        this.calc_wind.find('.window-type__elem[data-id="' + this.current.formats + '"]').addClass('is-active');
+
+        this.calc_wind.find('.js-favToggleLink .calc-panel__count').html('- ' + this.windows.length + decles(this.windows.length, [' ок', 'он', 'но', 'на']));
+        /*
+                var html = '';
+                for (var i = 0; i < this.windows.length; i++) {
+                    html += '<div class="window-fav__elem" data-window-id="' + this.windows[i].id + '" onclick="calculator.openWindow(' + this.windows[i].id + ')">\
+                                                <div class="window-fav__icon">\
+                                                    <svg class="icon icon-window-type' + (this.windows[i].formats != 1 ? '-' + this.windows[i].formats : '') + '">\
+                                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-window-type' + (this.windows[i].formats != 1 ? '-' + this.windows[i].formats : '') + '"></use>\
+                                                    </svg>\
+                                                </div>\
+                                                <div class="window-fav__info">\
+                                                    <div class="window-fav__title">' + this.windows[i].name + '</div>\
+                                                    <div class="window-fav__size">' + this.windows[i].width + ' х ' + this.windows[i].height + ' мм</div>\
+                                                </div>\
+                                                <div class="window-fav__controls">\
+                                                    <div onclick="calculator.copyWindow(' + this.windows[i].id + '); return false;" class="window-fav__control">\
+                                                        <svg class="icon icon-doc ">\
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-doc"></use>\
+                                                        </svg>\
+                                                    </div>\
+                                                    <div onclick="calculator.removeWindow(' + this.windows[i].id + '); return false;" class="window-fav__control window-fav__trash">\
+                                                        <svg class="icon icon-trash ">\
+                                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-trash"></use>\
+                                                        </svg>\
+                                                    </div>\
+                                                </div>\
+                                            </div>';
+                    $('.calc-panel__window .window-fav').html(html);
+                }
+
+                if ($('.window-fav__elem').length <= 1) {
+                    $('.window-fav__trash').hide();
+                }*/
+
+        var currentFormat = this.current.formats;
+        /*
+                if (currentFormat == 7) {
+                    $('.js-windowDescription').show();
+                } else {
+                    $('.js-windowDescription').hide();
+                }*/
+
+        if (this.current.sashes.length) {
+            var sashes = '';
+            var sashes_select = '';
+            var sashes_tab = '';
+            var sashes_bl_tabs = this.calc_wind.find('.sashes-bl-tabs');
+            var sashes_bl_tabs_content = this.calc_wind.find('.sashes-bl-content');
+            sashes_bl_tabs.html('');
+            sashes_bl_tabs_content.html('');
+            for (var i = 0; i < this.current.sashes.length; i++) {
+                var is_active = (i == 0);
+                sashes = '' +//
+                    // '<div class=" ">' +
+                    '<div data-title="' + (i + 1) + ' створка" class="sashes nav-item ' + (is_active ? 'active show' : '') + '" ' +
+                    'role="tab" data-toggle="tab" aria-selected="' + (is_active ? 'true' : 'false') + '" aria-controls="sasheTab' + (i + 1) + '"  data-target="#sasheTab' + (i + 1) + '">' +
+                    '<span>' + (i + 1) + '</span>' +
+                    //'</div>' +
+                    '</div>';
+                sashes_bl_tabs.append(sashes);
+
+                sashes_select = '<select data-ind="' + i + '" class="select select-sashes js-select"><optgroup>';
+                if (typeof this.data.sashes_table[currentFormat][i] != 'undefined') {
+                    for (var k = 0; k < this.data.sashes_table[currentFormat][i].length; k++) {
+                        var current = this.data.sashes_table[currentFormat][i][k];
+                        for (var j = 0; j < this.data.sashes.length; j++) {
+                            if (current == this.data.sashes[j].id) {
+                                sashes_select += '<option value="' + this.data.sashes[j].id + '">' + this.data.sashes[j].title + '</option>'
+                            }
+                        }
+                    }
+                } else {
+                    for (var k = 0; k < this.data.sashes.length; k++) {
+                        sashes_select += '<option value="' + this.data.sashes[k].id + '">' + this.data.sashes[k].title + '</option>'
+                    }
+                }
+                sashes_select += '</optgroup></select>';
+
+                sashes_tab = '<div class="tab-pane ' + (is_active ? 'active' : '') + '" role="tabpanel" id="sasheTab' + (i + 1) + '" aria-labelledby="sasheTab' + (i + 1) + '" data-parent="#sashes-bl-select">' +
+                    '<div data-title="' + (i + 1) + ' створка" >' + sashes_select + '</div>' +
+                    '</div>';
+                sashes_bl_tabs_content.append(sashes_tab);
+
+                this.calc_wind.find('.select-sashes[data-ind="' + i + '"]').val(this.current.sashes[i]);
+            }
+
+            this.calc_wind.find('.select-sashes').styler({
+                singleSelectzIndex: 1,
+                selectSmartPositioning: false,
+                selectSearch: $(this).data('search') || false,
+                onSelectClosed: function () {
+                    // var ind = $(this).data('ind');
+                    // for (var i = 0; i < calculator.current.sashes.length; i++) {
+                    //     if (ind == i) {
+                    //         calculator.current.sashes[i] = $(this).find('select').val();
+                    //         break;
+                    //     }
+                    // }
+                    // calculator.saveBuffer();
+                    // calculator.getImage();
+                }
+            });
+
+            this.calc_wind.find('select.select-sashes').on('change', function () {
+                var ind = $(this).parent().data('ind');
+                for (var i = 0; i < calculator.current.sashes.length; i++) {
+                    if (ind == i) {
+                        calculator.current.sashes[i] = $(this).val();
+                        break;
+                    }
+                }
+                calculator.saveBuffer();
+                calculator.getImage();
+                calculator.renderCart();
+            });
+        } else {
+            this.calc_wind.find('.sashes-bl').html('<textarea placeholder="описание конструкции в произвольной форме"></textarea>');
+        }
+        /*$('.js-numberOnly').styler({
+             selectSearch:  false,
+         });*/
+
+        this.getImage();
+
+    },
+    getImage: function () {
+        var link = '/theme/imgs/calc/windows/' + this.current.formats + '_stv/';
+        var linkSashesPart = '';
+        for (var i = 0; i < this.current.sashes.length; i++) {
+            linkSashesPart += this.current.sashes[i];
+            if (i != this.current.sashes.length - 1) {
+                linkSashesPart += '_';
+            }
+        }
+        linkSashesPart += '.jpg';
+        link = link + linkSashesPart;
+
+        $('.window-image__elem img').attr({'src': link});
+    },
+    copyWindow: function (id) {
+        for (var i = 0; i < this.windows.length; i++) {
+            if (this.windows[i].id == id) {
+                var copiedObject = $.extend({}, this.windows[i]);
+                copiedObject.id = Date.now();
+                copiedObject.sashes = copiedObject.sashes.slice(0);
+                //copiedObject.name += ' - копия';
+                this.windows.push(copiedObject);
+                this.saveBuffer();
+                this.renderPageAnimated('copy');
+            }
+        }
+
+        /*setTimeout(function () {
+            $('.window-fav__elem:last').trigger('click');
+        });*/
+        this.renderCart();
+    },
+    removeWindow: function (id) {
+        for (var i = 0; i < this.windows.length; i++) {
+            if (this.windows[i].id == id) {
+                this.windows.splice(i, 1);
+                this.current = this.windows[this.windows.length - 1];
+                this.saveBuffer();
+                this.renderPageAnimated('remove');
+                this.renderCart();
+            }
+        }
+
+        if (this.windows.length == 0) {
+            localStorage.clear();
+            return false;
+        }
+
+        if (this.windows.length <= 1) {
+            // alert('Должно быть минимум одно окно');
+            $('.window-fav__trash').css('display', 'none');
+            return false;
+
+        }
+        if (this.windows.length > 1) {
+            $('.window-fav__trash').css('display', 'block');
+        }
+    },
+    openWindow: function (id, direction) {
+        for (var i = 0; i < this.windows.length; i++) {
+            if (this.windows[i].id == id) {
+                this.current = this.windows[i];
+                break;
+            }
+        }
+        for (var j = 0; j < this.data.formats.length; j++) {
+            if (this.data.formats[j].id == this.current.formats) {
+                this.setupDataRanges(j, true, direction);
+                break;
+            }
+        }
+        this.saveBuffer();
+        //this.renderPageAnimated('open');
+        $('.calc-panel').removeClass('is-open');
+        $('body').removeClass('is-fav-nav-open');
+
+
+    },
+    initWindow: function (window) {
+        for (var i = 0; i < this.data.formats.length; i++) {
+            if (this.data.formats[i].id == window.formats) {
+                window.sashes = this.data.formats[i].sashes.slice(0);
+            }
+        }
+        this.windows.push(window);
+        this.current = this.windows[this.windows.length - 1];
+    },
+    newWindow: function () {
+        this.initWindow({
+            id: Date.now(),
+            //name: "",
+            width: 1300,
+            height: 1460,
+            //decisions: 0,//this.data['decisions'][0]['id'],
+            //profiles: 0,//this.data['profiles'][0]['id'],
+            glazed: 0,//this.data['glazed'][0]['id'],
+            formats: this.data['formats'][0]['id'],
+            colors: this.data['colors'][0]['id']
+        });
+        this.saveBuffer();
+        this.renderCart();
+        this.setupDataRanges(0, true);
+    },
+    getBuffer: function () {
+        this.windows = JSON.parse(localStorage.getItem('windows'));
+        if (!this.windows) {
+            this.windows = [];
+            this.newWindow();
+        } else {
+            this.current = this.windows[0];
+        }
+
+        this.renderPageAnimated('buffer');
+
+        for (input in this.inputs) {
+            validateRange(this.inputs[input]);
+        }
+    },
+    saveBufferTimerId: 0,
+    saveBuffer: function () {
+        var windows = JSON.stringify(this.windows);
+        localStorage.setItem('windows', windows);
+
+        clearTimeout(this.saveBufferTimerId);
+
+        /* this.saveBufferTimerId = setTimeout(function() {
+             $.ajax({
+                 url: '/calc/storage.php',
+                 data: {
+                     windows : windows,
+                 },
+                 type: 'POST',
+                 success: function(response) {
+                 }
+             });
+         }, 1000);*/
+
+    },
+    sendOrder: function (btn) {
+        var realForm = $('.order-form:first');
+        var form = $('.order-form')[0];
+        var formData = new FormData(form);
+        var json = JSON.stringify(this.windows);
+        var redirectParam = $(btn).data('redirect-url');
+        var ajaxUrl = $(btn).data('ajax-url');
+        formData.append('windows', json);
+        $(btn).attr('disabled', true);
+
+        $('.order-form').validate().form();
+        if ((form) && ($(".error-label").length === false || $(".error-label").is(":visible") === false)) {
+
+            // Pass data to CarrotQuest
+            if (false) {
+                var sendCQData = {};
+                var identifyCQData = [];
+                if (realForm.find('[name="city"]').length > 0) {
+                    sendCQData['Страна'] = realForm.find('[name="city"]').val().split(',')[1].trim();
+                    sendCQData['Город'] = realForm.find('[name="city"]').val().split(',')[0].trim();
+                    identifyCQData.push({
+                        op: 'update_or_create',
+                        key: '$country',
+                        value: sendCQData['Страна']
+                    });
+                    identifyCQData.push({
+                        op: 'update_or_create',
+                        key: '$city',
+                        value: sendCQData['Город']
+                    });
+                }
+                if (realForm.find('[name="user_name"]').length > 0) {
+                    sendCQData['Имя'] = realForm.find('[name="user_name"]').val();
+                    identifyCQData.push({
+                        op: 'update_or_create',
+                        key: '$name',
+                        value: sendCQData['Имя']
+                    });
+                }
+                if (realForm.find('[name="user_phone"]').length > 0) {
+                    sendCQData['Телефон'] = realForm.find('[name="user_phone"]').val();
+                    identifyCQData.push({
+                        op: 'update_or_create',
+                        key: '$phone',
+                        value: sendCQData['Телефон']
+                    });
+                }
+                if (realForm.find('[name="user_email"]').length > 0) {
+                    sendCQData['Почта'] = realForm.find('[name="user_email"]').val();
+                    identifyCQData.push({
+                        op: 'update_or_create',
+                        key: '$email',
+                        value: sendCQData['Почта']
+                    });
+                }
+                if (realForm.find('[name="user_message"]').length > 0) {
+                    sendCQData['Сообщение'] = realForm.find('[name="user_message"]').val();
+                }
+                if (realForm.find('[name="type_house"]').length > 0) {
+                    sendCQData['Тип дома'] = realForm.find('[name="type_house"]').val();
+                }
+                if (realForm.find('[name="options[]"]:checked').length > 0) {
+                    sendCQData['Опции'] = [];
+                    realForm.find('[name="options[]"]:checked').each(function () {
+                        sendCQData['Опции'].push($(this).val());
+                    });
+                    sendCQData['Опции'] = sendCQData['Опции'].join(', ');
+                }
+
+            }
+
+            $.ajax({
+                url: ajaxUrl,
+                data: formData,
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                success: function (response) {
+                    $(btn).attr('disabled', false);
+
+                    if (response.status == 'success') {
+
+                        $.magnificPopup.open({
+                            items: {
+                                src: $('#smallSuccessForm'),
+                                type: 'inline'
+                            }
+                        });
+
+                        $.magnificPopup.instance.close = function () {
+                            $.magnificPopup.proto.close.call(this);
+                            window.location.href = '//' + window.location.hostname + redirectParam + '';
+                        };
+
+                        localStorage.clear();
+                        $('.input').val('');
+                        $('.checkbox:checked').removeAttr('checked');
+                        $('.select option:selected').removeAttr('selected');
+                        $('.ordering-wrap, .ordering-forms').hide();
+                        $('.ordering-panel__control-item:last').hide();
+
+                        var gtmData = {
+                            'event': 'UA event',
+                            'eventCategory': 'Оформить заказ',
+                            'eventAction': undefined,
+                            'eventLabel': undefined
+                        };
+                        dataLayer.push(gtmData);
+
+                    } else {
+                        $(form).find('.js-recaptcha-error').html(response.message);
+                        $(form).find('.js-recaptcha-error').attr('style', 'display: block !important');
+                    }
+                }
+            });
+        } else {
+            $(btn).attr('disabled', false);
+        }
+    },
+    current: {},
+    disableCopy: false,
+    redrawTimer: 0,
+    scheduleRedraw: function () {
+        if (this.redrawTimer != 0) {
+            clearTimeout(this.redrawTimer);
+            this.redrawTimer = 0;
+        }
+
+        this.redrawTimer = setTimeout(function (context) {
+            context.renderCart();
+            context.renderPageAnimated('schedule');
+        }, 1000, this);
+    },
+};
+
+function windowTypeCarousel() {
+    var checkWidth = $(window).width();
+    var owlPost = $('.calc-window-type .window-type');
+    if (checkWidth > 767) {
+        if (typeof owlPost.data('owl.carousel') != 'undefined') {
+            owlPost.data('owl.carousel').destroy();
+        }
+        owlPost.removeClass('owl-carousel');
+    } else if (checkWidth < 768) {
+        owlPost.addClass('owl-carousel');
+        owlPost.owlCarousel({
+            loop: false,
+            nav: false,
+            navText: ['<i class="ion-ios-arrow-back"></i>', '<i class="ion-ios-arrow-forward"></i>'],
+            dots: false,
+            autoplay: false,
+            autoplayTimeout: 5000,
+            item: 4,
+            margin: 19,
+            responsive: {
+                0: {
+                    items: 4
+                },
+                370: {
+                    items: 6
+                },
+                575: {
+                    items: 7
+                },
+                767: {
+                    items: 8
+                },
+
+            }
+        });
+    }
+}
+
+function getNameById(id, data) {
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].id == id) {
+            return data[i].title;
+        }
+    }
+}
+
+function getSashesNames(window) {
+    var html = '';
+    for (var i = 0; i < window.sashes.length; i++) {
+        for (var k = 0; k < calculator.data.sashes.length; k++) {
+            if (calculator.data.sashes[k].id == window.sashes[i]) {
+                html += calculator.data.sashes[k].title + ', ';
+            }
+        }
+    }
+    html = html.slice(0, -2);
+    return html;
+}
+
+function formatStr(format) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return format.replace(/{(\d+)}/g, function (match, number) {
+        return typeof args[number] != 'undefined'
+            ? args[number]
+            : match
+            ;
+    });
+}
+
+function validateRange(input) {
+    var min = parseInt(input.attr('data-min'));
+    var max = parseInt(input.attr('data-max'));
+    var val = parseInt(input.val());
+    var errorMessage = input.attr('data-error-text');
+
+    if (min > 0 && max > 0) {
+
+        if (min <= val && max >= val || input.val() == '') {
+            input.parent().removeClass('error');
+            input.siblings('.error-label').html('');
+        } else {
+            input.parent().addClass('error');
+            // input.siblings('.error-label').html('Введите значение от ' + min + ' до ' + max);
+            // test {0} test 2 {1}
+            input.siblings('.error-label').html(formatStr(errorMessage, min, max));
+        }
+    }
+}
+
+function watchInput(inputKey) {
+    var type = '';
+    var input = calculator.inputs[inputKey];
+    if (input.attr('type') == 'text') {
+        type = 'keyup';
+    } else {
+        type = 'change';
+    }
+
+    if (input.attr('data-min') > 0 && input.attr('data-max') > 0) {
+        var min = input.attr('data-min');
+        var max = input.attr('data-max');
+        input.attr('placeholder', 'от ' + min + ' до ' + max);
+    }
+
+    input.on(type, function () {
+        var _this = $(this);
+        var val = _this.val();
+
+        var fieldName = input.attr('name');
+        if (fieldName == 'width' || fieldName == 'height') {
+            var rep = /[-\.;":'a-zA-Zа-яА-Я]/;
+            if (rep.test(val)) {
+                val = val.replace(rep, '');
+            }
+
+            validateRange(_this);
+
+            var min = input.attr('data-min');
+            var max = input.attr('data-max');
+
+            calculator.current[inputKey] = Math.min(max, Math.max(min, val));
+        } else {
+            calculator.current[inputKey] = val;
+        }
+
+        if (fieldName == 'decisions') {
+            calculator.checkDecisions();
+        }
+        if (fieldName == 'profiles') {
+            calculator.current.decisions = 0;
+        }
+        if (fieldName == 'glazed') {
+            calculator.current.decisions = 0;
+        }
+
+        if (_this.attr('type') == 'text') {
+            calculator.scheduleRedraw();
+        } else {
+            calculator.renderPageProxy();
+            calculator.renderCart();
+        }
+
+        calculator.saveBuffer();
+    });
+}
+
+function decles(count, words) {
+    function cizz(n, c) {
+        return c[0] + ((/^[0,2-9]?[1]$/.test(n)) ? c[2] : ((/^[0,2-9]?[2-4]$/.test(n)) ? c[3] : c[1]))
+    }
+
+    return cizz(count, words);
+}
+
+function renderText(selector, text) {
+    // var calc_wind = $('.calc-window:not(.clone)');
+    calculator.calc_wind.find(selector).html(text);
+}
+
+function renderHtml(data, input, current, type) {
+
+    var decisionHtml = '';
+    for (var i = 0; i < data.length; i++) {
+        decisionHtml += '<option ' + (data[i].image ? 'data-img="' + data[i].image + '"' : '') + ' value="' + data[i].id + '">' + data[i].title + '</option>'
+    }
+    input.html('<optgroup>' + decisionHtml + '</optgroup>').val(current).trigger('refresh');
+
+    if (type) {
+        var c = '';
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].id == current) {
+                c = data[i].image;
+            }
+        }
+        setTimeout(function () {
+            calculator.calc_wind.find('.select__color .jq-selectbox__select img').remove();
+            calculator.calc_wind.find('.select__color .jq-selectbox__select').prepend('<img class="color-p" src="' + c + '">');
+        });
+
+        calculator.calc_wind.find('.select__color .jq-selectbox__dropdown li').each(function () {
+            var img = $(this).data('img');
+            if (img !== undefined) {
+                $(this).prepend('<img class="color-p" src="' + img + '">');
+            }
+        });
+    }
+}
+
+
+calculatorData = JSON.parse('{"glazed":[{"id":0,"code":"no_el","title":"\u043d\u0435 \u0432\u044b\u0431\u0440\u0430\u043d"},{"id":"57","title":"\u0414\u0432\u0443\u0445\u043a\u0430\u043c\u0435\u0440\u043d\u044b\u0439 \u0441\u0442\u0435\u043a\u043b\u043e\u043f\u0430\u043a\u0435\u0442","code":"two"},{"id":"17172","title":"\u041e\u0434\u043d\u043e\u043a\u0430\u043c\u0435\u0440\u043d\u044b\u0439 \u044d\u043d\u0435\u0440\u0433\u043e\u0441\u0431\u0435\u0440\u0435\u0433\u0430\u044e\u0449\u0438\u0439 \u0441\u0442\u0435\u043a\u043b\u043e\u043f\u0430\u043a\u0435\u0442","code":"odnokamernyy-energosberegayushchiy-steklopaket"},{"id":"17173","title":"\u041e\u0434\u043d\u043e\u043a\u0430\u043c\u0435\u0440\u043d\u044b\u0439 \u0441\u0442\u0435\u043a\u043b\u043e\u043f\u0430\u043a\u0435\u0442 \u0441 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u0435\u043c \u0442\u0440\u0438\u043f\u043b\u0435\u043a\u0441\u0430","code":"odnokamernyy-steklopaket-s-ispolzovaniem-tripleksa"},{"id":"17174","title":"\u0410\u043d\u0442\u0438\u0440\u0435\u0437\u043e\u043d\u0430\u043d\u0441\u043d\u044b\u0439 \u0448\u0443\u043c\u043e\u0437\u0430\u0449\u0438\u0442\u043d\u044b\u0439 \u0441\u0442\u0435\u043a\u043b\u043e\u043f\u0430\u043a\u0435\u0442","code":"antirezonansnyy-shumozashchitnyy-steklopaket"},{"id":"17175","title":"\u0414\u0432\u0443\u0445\u043a\u0430\u043c\u0435\u0440\u043d\u044b\u0439 \u044d\u043d\u0435\u0440\u0433\u043e\u0441\u0431\u0435\u0440\u0435\u0433\u0430\u044e\u0449\u0438\u0439 \u0441\u0442\u0435\u043a\u043b\u043e\u043f\u0430\u043a\u0435\u0442","code":"dvukhkamernyy-energosberegayushchiy-steklopaket"},{"id":"17176","title":"\u041c\u0443\u043b\u044c\u0442\u0438\u0444\u0443\u043d\u043a\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u0441\u043e\u043b\u043d\u0446\u0435\u0437\u0430\u0449\u0438\u0442\u043d\u044b\u0439 \u0441\u0442\u0435\u043a\u043b\u043e\u043f\u0430\u043a\u0435\u0442","code":"multifunktsionalnyy-solntsezashchitnyy-steklopaket"}],"colors":[{"id":1,"title":"\u0411\u0435\u043b\u044b\u0439","image":"\/theme\/imgs\/calc\/color_white.jpg"},{"id":2,"title":"\u0426\u0432\u0435\u0442\u043d\u043e\u0439","image":"\/theme\/imgs\/calc\/color_multi.png"}],"sashes":[{"id":"g","title":"\u0413\u043b\u0443\u0445\u043e\u0435"},{"id":"po","title":"\u041f\u043e\u0432\u043e\u0440\u043e\u0442\u043d\u043e-\u043e\u0442\u043a\u0438\u0434\u043d\u043e\u0435"},{"id":"p","title":"\u041f\u043e\u0432\u043e\u0440\u043e\u0442\u043d\u043e\u0435"},{"id":"o","title":"\u041e\u0442\u043a\u0438\u0434\u043d\u043e\u0435"}],"formats":[{"id":1,"title":"\u041e\u0434\u043d\u043e\u0441\u0442\u0432\u043e\u0440\u0447\u0430\u0442\u043e\u0435 \u043e\u043a\u043d\u043e","sashes":["p"],"width_range":{"min":500,"max":2700},"height_range":{"min":500,"max":1600}},{"id":2,"title":"\u0414\u0432\u0443\u0445\u0441\u0442\u0432\u043e\u0440\u0447\u0430\u0442\u043e\u0435 \u043e\u043a\u043d\u043e","sashes":["g","po"],"width_range":{"min":500,"max":2700},"height_range":{"min":500,"max":1600}},{"id":3,"title":"\u0422\u0440\u0435\u0445\u0441\u0442\u0432\u043e\u0440\u0447\u0430\u0442\u044b\u0435 \u043e\u043a\u043d\u0430","sashes":["g","po","g"],"width_range":{"min":500,"max":2700},"height_range":{"min":500,"max":1600}},{"id":4,"title":"\u0422\u0440\u0435\u0445\u0441\u0442\u0432\u043e\u0440\u0447\u0430\u0442\u044b\u0435 \u043e\u043a\u043d\u0430 \u0441 \u0444\u0440\u0430\u043c\u0443\u0433\u043e\u0439","sashes":["o","g","po","g"],"width_range":{"min":500,"max":2700},"height_range":{"min":500,"max":1600}},{"id":5,"title":"\u0411\u0430\u043b\u043a\u043e\u043d\u043d\u044b\u0439 \u0431\u043b\u043e\u043a \u0434\u0432\u0443\u0445\u0441\u0442\u0432\u043e\u0440\u0447\u0430\u0442\u044b\u0439","sashes":["po","g"],"width_range":{"min":500,"max":2700},"height_range":{"min":500,"max":1600}},{"id":6,"title":"\u0411\u0430\u043b\u043a\u043e\u043d\u043d\u044b\u0439 \u0431\u043b\u043e\u043a \u043e\u0434\u043d\u043e\u0441\u0442\u0432\u043e\u0440\u0447\u0430\u0442\u044b\u0439","sashes":["po"],"width_range":{"min":500,"max":2700},"height_range":{"min":500,"max":1600}},{"id":7,"title":"\u041d\u0435\u0441\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u0430\u044f \u043a\u043e\u043d\u0441\u0442\u0440\u0443\u043a\u0446\u0438\u044f","sashes":["g","po","g"],"width_range":{"min":500,"max":2700},"height_range":{"min":500,"max":1600}}],"sashes_table":{"4":[["g","po","o","p"],["o","po","g","p"],["po","p","g","o"],["o","g"]],"3":[["o","po","g","p"],["g","po","o","p"],["p","o","g","po"]],"7":[["o","po","g","p"],["g","po","o","p"],["p","o","g","po"]],"2":[["o","po","p","g"],["p","g","po","o"]],"6":[["p","g","po","o"]],"balcony":[["door"]],"5":[["o","po","p","g"],["p","g","po","o"]],"1":[["p","g","po","o"]]}}');
+console.log(calculatorData);
+
+
+function selectInit() {
+    $('.js-select').styler({
+        singleSelectzIndex: 1,
+        selectSmartPositioning: false,
+        selectSearch: $(this).data('search') || false,
+        onFormStyled: function () {
+
+            $('.select__color .jq-selectbox__dropdown li').each(function () {
+                var img = $(this).data('img');
+
+                $(this).prepend('<img class="color-p" src="' + img + '">');
+            });
+        }
+    });
+}
+
+selectInit();
+$(window).load(function () {
+    if ($('.calc').length > 0) {
+        if (typeof calculatorData !== 'undefined') {
+            calculator.data = calculatorData;
+        }
+        calculator.init();
+        calculator.renderCart();
+    }
+});

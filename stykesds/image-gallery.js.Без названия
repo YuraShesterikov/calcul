@@ -1,0 +1,138 @@
+(function (j) {
+	j.EM.ImageGallery = {};
+	j.EM.ImageGallery.init = function () {
+		if (j.fn.owlCarousel!==undefined) {
+			var gallerys = jQuery('.images-gallery').not('.init-carousel');
+			gallerys.each(function (gindex, gblock) {
+				gblock = jQuery(gblock);
+                gblock.addClass('owl-carousel');
+				var slides = gblock.children('a');
+
+				slides.wrap('<div class="item"></div>');
+				var date = new Date();
+
+				if (!gblock.attr('id')) {
+					gblock.attr('id', 'slider_' + date.getTime());
+				}
+				var items_cnt = 6;
+
+				var id = gblock.attr('id');
+				var gb_responsive = {
+                    0: {
+                        items: 1,
+                    },
+                    480: {
+                        items: 2,
+                    },
+                    768: {
+                        items: 3,
+                    },
+                    992: {
+                        items: 4,
+                    },
+                    1200: {
+                        items: 5,
+                    },
+                    1500: {
+                        items: 6,
+                    }
+                };
+				if(gblock.data('responsive')){
+					var gb_r =gblock.data('responsive');
+                    gb_r= gb_r.replace(/\'/g,'"');
+					gb_r =  JSON.parse(gb_r);
+                    gb_responsive = {};
+					for(var r in gb_r){
+                        gb_responsive[r] = {'items':gb_r[r]};
+					}
+				}
+
+				j('#' + id).owlCarousel({
+                    loop: false,
+                    margin: 0,
+                    nav: true,
+                    autoWidth:(gblock.data('autowidth')?true:false),
+                    navText: [
+                        "<i class='fas fa-angle-left'></i>",
+                        "<i class='fas fa-angle-right'></i>"
+                    ],
+                    responsiveClass: true,
+                    responsive: gb_responsive,
+                    dots:false,
+                    lazyLoad:true
+				});
+				gblock.addClass('init-carousel');
+			});
+		}
+		if (j.fn.magnificPopup!==undefined) {
+			var pu_gallerys = jQuery('.popup-gallery').not('.init-popup');
+			pu_gallerys.each(function () {
+				j(this).magnificPopup({
+					delegate: 'a',
+					type: 'image',
+					tLoading: 'Загрузка...',
+					mainClass: 'mfp-no-margins mfp-with-zoom',
+					gallery: {
+						enabled: true,
+						navigateByImgClick: true,
+						preload: [
+							0,
+							1
+						]
+					},
+					image: {
+						tError: 'Изображение  не может быть загружено',
+						titleSrc: function (item) {
+							return item.el.attr('title');
+						},
+						verticalFit: true
+					}
+				});
+				j(this).addClass('init-popup');
+			});
+            j(document).on('click','.popup-gallery-linked .item > a',function(){
+                var ind=j(this).index('.popup-gallery-linked .item > a'),
+                    elems=[];
+                j('.popup-gallery-linked .item > a').each(function(){
+                    var data='';
+                    data+='<div class="mfp-inline-container"><div class="img-cont"><img src="'+j(this).attr('href')+'"></div>';
+                    if (j(this).closest('.item').find('.linked-product').length)
+                    {
+                        data+=j(this).closest('.item').find('.linked-product').html();
+                    }
+                    data+='</div>';
+                    elems.push({
+                        src:data
+                    });
+                });
+                j.magnificPopup.open({
+                    items: elems,
+                    type: 'inline',
+                    overflowY: 'scroll',
+                    tLoading: '',
+                    /*closeBtnInside:false,*/
+                    mainClass:'popup-form linked',
+                    gallery: {
+                        preload:[1,1],
+                        enabled: true
+                    },
+                    callbacks: {
+                        lazyLoad: function(item) {
+                            j(item.src).find('img').each(function(){
+                                if (!j(this).hasClass('angle'))
+                                {
+                                    j('<img class="mfp-img" />').attr('src', j(this).src);
+                                }
+                            });
+                        }
+                    }
+                },ind);
+                return false;
+            });
+		}
+	};
+	j(window).on('load',function(){
+	j.EM.ImageGallery.init();
+	});
+
+})(jQuery);

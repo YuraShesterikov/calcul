@@ -1,0 +1,180 @@
+(function (j, w, d) {
+    j.EM.UA = {
+        'ua_popup_form': null,
+        'success_btn': null,
+        'cancel_btn': null,
+        'handler_type': '',
+        'ua_text_source': '/page/user-agreement/ .page-content-block',//'#user-agreement-text',
+        'load_ua_text_loaded': false,
+        'load_ua_text': function () {
+            if (j.EM.UA.load_ua_text_loaded) {
+                return;
+            }
+            var ua_text = j.EM.UA.ua_popup_form.find('.textarea');
+            var text_source = j.EM.UA.ua_text_source.split(' ');
+            if (text_source.length > 1) {
+                if (!window.sessionStorage.getItem('la')) {
+                    ua_text.load(j.EM.UA.ua_text_source, function () {
+                        window.sessionStorage.setItem('la', ua_text.html());
+                    });
+                } else {
+                    ua_text.html(window.sessionStorage.getItem('la'));
+                }
+            } else {
+                ua_text.html(j(j.EM.UA.ua_text_source).html());
+            }
+            j.EM.UA.load_ua_text_loaded = true;
+
+        },
+        'init': function () {
+            if (j.EM.UA.ua_popup_form === null) {
+                var ua_popup_form = '' +
+                    '<div class="user-agreement">' +
+                    '<div class="ua-bg">' +
+                    '</div>' +
+                    '<div class="ua-content">' +
+                    '<div class="ua-title">Политика конфиденциальности:</div>' +
+                    '<div class="ua-info">' +
+                    '<div class="textarea"></div>' +
+                    '</div>' +
+                    '<div class="ua-buttons">' +
+                    '<button class="ua-btn-success">Принимаю</button>' +
+                    //'<button class="ua-btn-cancel">Не принимаю</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+                j('body').append(ua_popup_form);
+                if (j.EM.UA.ua_popup_form === null) {
+                    j.EM.UA.ua_popup_form = j('body').find('.user-agreement');
+                }
+            }
+            j.EM.UA.adding();
+
+            j(document).delegate('.ua-check', 'click', function (e) {
+                e.preventDefault();
+                j.EM.UA.handler_type = 'change';
+                j.EM.UA.open(j(this).closest('form'),true);
+                return false;
+            }).delegate('[name="ua-check"]', 'change', function (e) {
+                e.preventDefault();
+                var current_check = $(this);
+                if ((current_check.prop("checked") || current_check.is(':checked')) && current_check.data('checked')) {
+                    current_check.data('checked', true);
+                } else {
+                    current_check.data('checked', false);
+                }
+               // j.EM.UA.handler_type = 'change';
+               // j.EM.UA.open(j(this).closest('form'));
+                return false;
+            }).delegate('.ua-bg', 'click', function (e) {
+                e.preventDefault();
+                j.EM.UA.close();
+                return false;
+            });
+            j.EM.UA.success_btn = j.EM.UA.ua_popup_form.find('.ua-btn-success');
+            j.EM.UA.success_btn.on('click', function (e) {
+                e.preventDefault();
+                j.EM.UA.success();
+                return false;
+            });
+            j.EM.UA.cancel_btn = j.EM.UA.ua_popup_form.find('.ua-btn-cancel');
+            j.EM.UA.cancel_btn.on('click', function (e) {
+                e.preventDefault();
+                j.EM.UA.cancel();
+                return false;
+            });
+
+
+        },
+
+        'adding': function (form) {
+            var awhere = j(document);
+            if (form !== undefined && form.size()) {
+                awhere = form;
+            }
+            awhere.find(".user-agreement-check").not('.added').each(function () {
+                j(this).addClass('added')
+                    .append('<div><input class="custom-checkbox " name="ua-check" value="1" type="checkbox" checked data-checked="true" data-required data-title="Согласен на обработку персональных данных в соответствии с <a class=\'ua-check\'>Политикой конфиденциальности</a></div>">');
+                j.EM.CCH.replace(j(this));
+            });
+        },
+        'validate': function (form) {
+            j.EM.UA.handler_type = 'submit';
+            if (j.EM.UA.open(form)) {
+                return true;
+            }
+            return false;
+        },
+        'open': function (form,opn) {
+            var current_check = null;
+            if (form === undefined) {
+                return null;
+            }
+            if (current_check === null || current_check === undefined) {
+                current_check = form.find('[name="ua-check"]');
+            }
+            if (current_check === null || current_check === undefined || !current_check.size()) {
+                return null;
+            }
+            j.EM.UA.load_ua_text();
+            console.log('open set checker');
+            j.EM.UA.ua_popup_form.data('current_check', current_check);
+
+            if (!opn && (current_check.prop("checked") || current_check.is(':checked')) && current_check.data('checked')) {
+                j.EM.UA.ua_popup_form.hide();
+                j('body').removeClass('ua-no-scroll');
+                return true;
+            }
+            j.EM.UA.ua_popup_form.show();
+            j('body').addClass('ua-no-scroll');
+            return false;
+        },
+        'close': function () {
+            console.log('close get checker');
+            var current_check = j.EM.UA.ua_popup_form.data('current_check');
+            if (current_check !== null && current_check.size()) {
+                if ((current_check.prop("checked") || current_check.is(':checked')) && current_check.data('checked')) {
+                    current_check.attr('checked', 'checked').prop('checked', true).data('checked', true);
+                } else {
+                    current_check.removeAttr('checked').prop('checked', false).data('checked', false);
+                }
+            }
+            j.EM.UA.ua_popup_form.hide();
+            j('body').removeClass('ua-no-scroll');
+            j.EM.UA.handler_type = '';
+            console.log('close unset checker');
+            j.EM.UA.ua_popup_form.data('current_check', null);
+
+        },
+        'success': function () {
+            console.log('success get checker');
+            var current_check = j.EM.UA.ua_popup_form.data('current_check');
+
+            if (current_check !== undefined && current_check !== null) {
+                current_check.attr('checked', 'checked').prop('checked', true).data('checked', true);
+                if (j.EM.UA.handler_type == 'submit') {
+                    var eventHandler = current_check.data('eventHandler');
+                    if (eventHandler !== undefined && typeof eventHandler == "function") {
+                        eventHandler(current_check.prop('checked'));
+                    } else {
+                        current_check.closest('form').trigger('submit');
+                    }
+                }
+            }
+            j.EM.UA.close();
+        },
+        'cancel': function () {
+            console.log('cancel get checker');
+            var current_check = j.EM.UA.ua_popup_form.data('current_check');
+
+            if (current_check !== undefined && current_check !== null) {
+                current_check.removeAttr('checked').prop('checked', false).data('checked', false);
+            }
+            j.EM.UA.close();
+        }
+
+    };
+    j(d).ready(function () {
+        j.EM.UA.init();
+    });
+})(jQuery, window, document);

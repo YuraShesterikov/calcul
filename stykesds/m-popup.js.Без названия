@@ -1,0 +1,97 @@
+(function (j, w, d) {
+    if (j.fn.magnificPopup !== undefined) {
+        var clsbtn_correct = function (content) {
+            var closebtn = null;
+            closebtn = content.find('.mfp-close');
+            if (closebtn.size() > 0) {
+                closebtn.detach();
+            }
+            if (closebtn.size()) {
+                var wpb = content.find('.white-popup-block');
+                if (wpb.size()) {
+                    wpb.prepend(closebtn);
+                } else {
+                    content.append(closebtn);
+                }
+            }
+
+
+        };
+        j(w).on('load',function () {
+            j(d)
+                .delegate('.ajax-popup', 'click', function (e) {
+                    e.preventDefault();
+                    var href_ = j(this).attr('href');
+                    j.magnificPopup.open({
+                        type: 'ajax',
+                        items: {
+                            src: href_,
+                            type: 'ajax',
+                        },
+                        tLoading: 'Загрузка...',
+                        closeOnContentClick: false,
+                        closeOnBgClick: true,
+                        showCloseBtn: true,
+                        mainClass: 'mfp-fade',
+                        removalDelay: 300,
+                        callbacks: {
+                            ajaxContentAdded: function () {
+                                if (j.EM.MaskedInput !== undefined) {
+                                    j.EM.MaskedInput.init();
+                                }
+                                if (j.EM.UA !== undefined) {
+                                    j.EM.UA.init();
+                                }
+                                clsbtn_correct($(this.content));
+                                // replaceWithReCaptcha();
+                            },
+                            open: function () {
+                                clsbtn_correct($(this.content));
+                                // replaceWithReCaptcha();
+                            }
+                        }
+                    });
+
+                    return false;
+                })
+                .delegate('.inline-popup', 'click', function (e) {
+                    e.preventDefault();
+                    var href_ = j(this).attr('href');
+                    j.magnificPopup.open({
+                        type: 'inline',
+                        items: {
+                            src: j(href_),
+                            type: 'inline',
+                        },
+                        tLoading: 'Загрузка...',
+                        closeOnContentClick: false,
+                        closeOnBgClick: true,
+                        showCloseBtn: true,
+                        mainClass: 'mfp-fade',
+                        removalDelay: 300,
+                        callbacks: {
+                            ajaxContentAdded: function () {
+                                if (j.EM.MaskedInput !== undefined) {
+                                    j.EM.MaskedInput.init();
+                                }
+                                if (j.EM.UA !== undefined) {
+                                    j.EM.UA.init();
+                                }
+                                //replaceWithReCaptcha();
+                            },
+                            open: function () {
+                                //replaceWithReCaptcha();
+                            }
+                        }
+                    });
+
+                    return false;
+                });
+            j('.ajax-popup').addClass('mfp_ap');
+            j('.inline-popup').addClass('mfp_ip');
+        });
+        /*j(d).ready(function () {
+
+         });*/
+    }
+})(jQuery, window, document);
